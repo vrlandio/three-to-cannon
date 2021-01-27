@@ -1,3 +1,10 @@
+// See: https://github.com/substack/tape/issues/514
+require = require('esm')(module);
+
+// See: https://github.com/react-spring/cannon-es/issues/23
+const {performance} = require('perf_hooks');
+global.performance = performance;
+
 const test = require('tape');
 const THREE = global.THREE = require('three');
 const threeToCannon = require('../').threeToCannon;
@@ -51,10 +58,30 @@ test('shape - cylinder', function (t) {
   t.end();
 });
 
+test('shape - cylinder without type', function (t) {
+  const geometry = new THREE.CylinderGeometry(2, 3, 5, 8);
+  const bufferGeometry = new THREE.BufferGeometry().fromGeometry(geometry);
+  bufferGeometry.metadata = {type: geometry.type, parameters: geometry.parameters || {}};
+  const cylinderObject = new THREE.Mesh(bufferGeometry);
+  const cylinder = threeToCannon(cylinderObject);
+
+  t.equal( cylinder.type, ShapeType.CYLINDER, 'cylinder.type' );
+  t.equal( cylinder.radiusTop, 2, 'cylinder.radiusTop' );
+  t.equal( cylinder.radiusBottom, 3, 'cylinder.radiusBottom' );
+  t.equal( cylinder.height, 5, 'cylinder.height' );
+  t.ok( equalsApprox( cylinder.orientation.x, -0.707106 ), 'cylinder.orientation.x' );
+  t.ok( equalsApprox( cylinder.orientation.y, 0 ), 'cylinder.orientation.y' );
+  t.ok( equalsApprox( cylinder.orientation.z, 0 ), 'cylinder.orientation.z' );
+  t.ok( equalsApprox( cylinder.orientation.w, 0.707106 ), 'cylinder.orientation.w' );
+
+  t.end();
+});
+
 test('shape - hull', function (t) {
   const hull = threeToCannon(object, {type: threeToCannon.Type.HULL});
 
   t.equal( hull.type, ShapeType.HULL, 'hull.type' );
+  t.equals( hull.boundingSphereRadius.toFixed( 3 ), '8.660', 'hull.boundingSphereRadius' );
 
   t.end();
 });
@@ -63,6 +90,7 @@ test('shape - mesh', function (t) {
   const mesh = threeToCannon(object, {type: threeToCannon.Type.MESH});
 
   t.equal( mesh.type, ShapeType.MESH, 'mesh.type' );
+  t.equals( mesh.boundingSphereRadius.toFixed( 3 ), '8.660', 'mesh.boundingSphereRadius' );
 
   t.end();
 });

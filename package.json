@@ -1,15 +1,15 @@
 {
   "name": "three-to-cannon",
-  "version": "2.0.0",
+  "version": "3.1.0",
   "description": "Convert a THREE.Mesh to a CANNON.Shape.",
-  "main": "dist/three-pathfinding.js",
-  "module": "dist/three-pathfinding.module.js",
+  "main": "dist/three-to-cannon.js",
+  "module": "dist/three-to-cannon.module.js",
   "source": "index.js",
   "scripts": {
-    "test": "node test/index.js",
-    "preversion": "npm run test",
-    "dist": "microbundle --target browser",
-    "version": "npm run dist && git add -A dist",
+    "test": "tape test/index.js | tap-spec",
+    "dev": "microbundle watch --globals three=THREE --external three",
+    "dist": "microbundle --globals three=THREE --external three",
+    "preversion": "npm run dist && npm test",
     "postversion": "git push && git push --tags && npm publish"
   },
   "repository": {
@@ -31,12 +31,24 @@
   },
   "homepage": "https://github.com/donmccurdy/three-to-cannon#readme",
   "peerDependencies": {
-    "cannon": "github:donmccurdy/cannon.js#v0.6.2-dev1"
+    "cannon-es": "^0.9.1",
+    "three": "^0.115.0"
   },
   "devDependencies": {
-    "cannon": "github:donmccurdy/cannon.js#v0.6.2-dev1",
-    "microbundle": "^0.6.0",
+    "cannon-es": "^0.9.1",
+    "esm": "^3.2.25",
+    "microbundle": "^0.12.0",
+    "tap-spec": "^5.0.0",
     "tape": "^4.9.0",
-    "three": "^0.89.0"
-  }
+    "three": "^0.115.0"
+  },
+  "files": [
+    "dist/",
+    "lib/",
+    "index.js",
+    "README.md",
+    "LICENSE",
+    "package.json",
+    "package-lock.json"
+  ]
 }
